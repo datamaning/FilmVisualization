@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3.v3.js"></script>
+        <style type="text/css">
+        .nodetext {
+            font-size: 12px ;
+            font-family: SimSun;
+            fill:#000000;
+            fill-opacity:0.0;
+        }
+
+        .linetext {
+            font-size: 12px ;
+            font-family: SimSun;
+            fill:#0000FF;
+            fill-opacity:0.0;
+        }
+
+        .labeltext {
+            font-size: 16px ;
+            font-family: SimSun;
+            fill:gold;
+        }
+        .labeltext2 {
+            font-size: 16px ;
+            font-family: SimSun;
+            fill:#000000;
+        }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript">
+      var nodes = [];//[{"name":"alcudish","scale":119},{"name":"chairmannirvana","scale":158},{"name":"immortal_3","scale":102},{"name":"qfmeng","scale":110},{"name":"6328459","scale":64},{"name":"sosovipp","scale":65}];
+	  var edges = [];//[{"source":0,"target":1,"value":0},{"source":0,"target":2,"value":1},{"source":0,"target":3,"value":137},{"source":0,"target":4,"value":104},{"source":0,"target":5,"value":103}];   
+	  var width = 370;
+        var height = 370;
+
+        console.log(edges);
+
+        var svg = d3.select("body")
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+            svg.append("text")
+               .attr("x", 1500)
+               .attr("y", 1000)
+               .style("font-size", 100)
+               .text("最小生成树");
+
+        var force = d3.layout.force()
+                      .nodes(nodes)
+                      .links(edges)
+                      .size([width, height])
+                      .linkDistance(80)
+                      .charge([-100])
+                      .start();
+
+        var svg_edges = svg.selectAll("line")
+                           .data(edges)
+                           .enter()
+                           .append("line")
+                           .style("stroke", "gray")
+                           .style("stroke-width", function(d) { return d.value / 40; });
+
+        var color = d3.scale.category20();
+
+        var svg_nodes = svg.selectAll("circle")
+                           .data(nodes)
+                           .enter()
+                           .append("circle")
+                           .style("fill", function(d, i){return color(i);})
+                           .attr("r", function(d) { return Math.sqrt(d.scale);})
+                           .call(force.drag);
+
+        var text_dx = -10;
+        var text_dy = 10;
+
+        var nodes_text = svg.selectAll(".nodetext")
+                            .data(nodes)
+                            .enter()
+                            .append("text")
+                            .attr("class","nodetext")
+                            .attr("dx",text_dx)
+                            .attr("dy",text_dy)
+                            .text(function(d){return d.name;});
+
+        var edges_text = svg.selectAll(".linetext")
+                                .data(edges)
+                                .enter()
+                                .append("text")
+                                .attr("class","linetext")
+                                .text(function(d){return d.relation;});
+
+        svg_nodes.on("mouseover", function(d, i){									
+                                        edges_text.style("fill-opacity", function(edge){
+                                            if(edge.source == d || edge.target == d)
+                                                 return 1.0;
+                                            });
+                                        nodes_text.style("fill-opacity", function(node){
+                                            if(node == d)
+                                                return 1.0;
+                                        });
+                                  })
+                 .on("mouseout", function(d, i){
+                                        edges_text.style("fill-opacity", function(edge){
+                                            if(edge.source == d || edge.target == d)
+                                                return 0.0;
+                                        });
+                                        nodes_text.style("fill-opacity", function(node){
+                                            if(node == d)
+                                                return 0.0;
+                                        });
+                 })
+				 .on("mousedown", function(d, i){									
+									svg_nodes.style("fill", function(node){
+										if(node.index == d.index){
+											QJSCall.UserNeighborSelected(d.index);
+											return "#ff0000";
+										}									//	else
+											return color(node.index);
+									});
+							  });
+        force.on("tick", function(){
+             svg_edges.attr("x1",function(d){ return d.source.x; });
+             svg_edges.attr("y1",function(d){ return d.source.y; });
+             svg_edges.attr("x2",function(d){ return d.target.x; });
+             svg_edges.attr("y2",function(d){ return d.target.y; });
+             
+             edges_text.attr("x",function(d){ return (d.source.x + d.target.x) / 2 ; });
+             edges_text.attr("y",function(d){ return (d.source.y + d.target.y) / 2 ; });
+                 
+             svg_nodes.attr("cx",function(d){ return d.x; });
+             svg_nodes.attr("cy",function(d){ return d.y; });
+             nodes_text.attr("x",function(d){ return d.x; });
+             nodes_text.attr("y",function(d){ return d.y + 10; });
+        });
+
+		function open(strnodes, stredges){
+			try{
+				nodes = strnodes;
+                edges = stredges;
+				//alert(1);
+				//svg.selectAll(*).remove();
+				d3.selectAll("line").remove();
+				d3.selectAll("circle").remove();
+				d3.selectAll(".nodetext").remove();
+				d3.selectAll(".linetext").remove();
+				//nodes = [{ name : "0", BetCen : 334, CloseCen : 2642.3 } ,
+				//		 { name : "1", BetCen : 340, CloseCen : 2614.6 }];
+						 
+				//edges = [{ source :0, target: 1, relation: "1.3"}];
+				
+				//
+				//location.reload();
+				
+				//for (var i = 0; i < strnodes.length; i++) {
+				//	nodes.add
+				//}
+				
+				force = d3.layout.force()
+                      .nodes(nodes)
+                      .links(edges)
+                      .size([width, height])
+                      .linkDistance(80)
+                      .charge([-100])
+                      .start();
+				svg_edges = svg.selectAll("line")
+                           .data(edges)
+                           .enter()
+                           .append("line")
+                           .style("stroke", "gray")
+                           .style("stroke-width", function(d) { return d.value / 40; });
+				var color = d3.scale.category20();
+				svg_nodes = svg.selectAll("circle")
+                           .data(nodes)
+                           .enter()
+                           .append("circle")
+                           .style("fill", function(d, i){return color(i);})
+                           .attr("r", function(d) { return Math.sqrt(d.scale);})
+                           .call(force.drag);
+
+				nodes_text = svg.selectAll(".nodetext")
+									.data(nodes)
+									.enter()
+									.append("text")
+									.attr("class","nodetext")
+									.attr("dx",text_dx)
+									.attr("dy",text_dy)
+									.text(function(d){return d.name;});
+
+				edges_text = svg.selectAll(".linetext")
+										.data(edges)
+										.enter()
+										.append("text")
+										.attr("class","linetext")
+										.text(function(d){return d.relation;});
+										
+				svg_nodes.on("mouseover", function(d, i){	
+												edges_text.style("fill-opacity", function(edge){
+													if(edge.source == d || edge.target == d)
+														 return 1.0;
+													});
+												nodes_text.style("fill-opacity", function(node){
+													if(node == d)
+														return 1.0;
+												});
+										  })
+						 .on("mouseout", function(d, i){
+												edges_text.style("fill-opacity", function(edge){
+													if(edge.source == d || edge.target == d)
+														return 0.0;
+												});
+												nodes_text.style("fill-opacity", function(node){
+													if(node == d)
+														return 0.0;
+												});
+						 })
+						 .on("mousedown", function(d, i){									
+									svg_nodes.style("fill", function(node){
+										if(node.index == d.index){ 
+											QJSCall.UserNeighborSelected(d.index);
+											return "#ff0000";
+										}									//	else
+											return color(node.index);
+									});
+							  });
+				force.on("tick", function(){
+					 svg_edges.attr("x1",function(d){ return d.source.x; });
+					 svg_edges.attr("y1",function(d){ return d.source.y; });
+					 svg_edges.attr("x2",function(d){ return d.target.x; });
+					 svg_edges.attr("y2",function(d){ return d.target.y; });
+					 
+					 edges_text.attr("x",function(d){ return (d.source.x + d.target.x) / 2 ; });
+					 edges_text.attr("y",function(d){ return (d.source.y + d.target.y) / 2 ; });
+						 
+					 svg_nodes.attr("cx",function(d){ return d.x; });
+					 svg_nodes.attr("cy",function(d){ return d.y; });
+					 nodes_text.attr("x",function(d){ return d.x; });
+					 nodes_text.attr("y",function(d){ return d.y + 10; });
+				});
+			}
+			catch(e) {
+				 alert(e);
+			}
+		}
+        </script>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
