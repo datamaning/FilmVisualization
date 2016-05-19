@@ -1,0 +1,3 @@
+douban_data 为实验数据
+douban_spider_source 为douban_data的爬虫程序
+commentsToChara 为性格特征分析程序
